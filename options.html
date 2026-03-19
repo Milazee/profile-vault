@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Profile Vault — Options</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      background: #0d1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 100px;
+    }
+
+    .page-header {
+      margin-bottom: 36px;
+    }
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #a78bfa;
+    }
+    .page-header .sub { color: #64748b; font-size: 13px; margin-top: 3px; }
+
+    .section {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #7c3aed;
+      margin-bottom: 18px;
+    }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 13px; }
+    .full   { grid-column: 1 / -1; }
+
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+
+    label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 13.5px;
+      font-family: inherit;
+      padding: 8px 10px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 2px rgba(124,58,237,0.12);
+    }
+    select { cursor: pointer; }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    /* API key row */
+    .key-row { display: flex; gap: 8px; }
+    .key-row input { flex: 1; font-family: monospace; font-size: 12.5px; }
+    .toggle-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0 14px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .toggle-btn:hover { background: #30363d; }
+    .hint { color: #475569; font-size: 11.5px; margin-top: 4px; }
+    .hint a { color: #7c3aed; text-decoration: none; }
+
+    /* Resume upload in options */
+    .upload-row { display: flex; gap: 8px; align-items: center; }
+    .upload-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 8px 14px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .upload-label:hover { background: #30363d; color: #e2e8f0; }
+    .upload-label input { display: none; }
+    .selected-file { color: #94a3b8; font-size: 12.5px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .parse-resume-btn {
+      background: #7c3aed;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .parse-resume-btn:hover:not(:disabled) { background: #6d28d9; }
+    .parse-resume-btn:disabled { background: #2d3148; color: #475569; cursor: not-allowed; }
+    #parse-status { font-size: 12.5px; margin-top: 8px; display: none; }
+    #parse-status.loading { color: #94a3b8; display: block; }
+    #parse-status.error   { color: #f87171; display: block; }
+    #parse-status.success { color: #4ade80; display: block; }
+
+    /* Stored resume file display */
+    .stored-resume {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 7px;
+      padding: 10px 13px;
+      margin-bottom: 12px;
+    }
+    .stored-resume .resume-icon { font-size: 20px; flex-shrink: 0; }
+    .stored-resume .resume-info { flex: 1; min-width: 0; }
+    .stored-resume .resume-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stored-resume .resume-meta { font-size: 11px; color: #475569; margin-top: 2px; }
+    .open-resume-btn {
+      background: none;
+      border: 1px solid #2d3148;
+      border-radius: 5px;
+      color: #7c3aed;
+      cursor: pointer;
+      font-size: 11.5px;
+      padding: 4px 10px;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .open-resume-btn:hover { background: #1a1d2e; border-color: #7c3aed; }
+
+    /* Entry cards (education / experience) */
+    .entries { display: flex; flex-direction: column; gap: 14px; }
+
+    .entry-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 16px;
+      position: relative;
+    }
+
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .entry-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .remove-btn {
+      background: none;
+      border: 1px solid #450a0a;
+      border-radius: 5px;
+      color: #f87171;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 3px 9px;
+      transition: background 0.15s;
+    }
+    .remove-btn:hover { background: #1c0a0a; }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr 20px 1fr 1fr;
+      gap: 8px;
+      align-items: end;
+    }
+    .date-sep {
+      color: #475569;
+      text-align: center;
+      padding-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px dashed #2d3148;
+      border-radius: 7px;
+      color: #7c3aed;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 10px 14px;
+      width: 100%;
+      transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .add-btn:hover { background: #1a1d2e; border-color: #7c3aed; }
+
+    /* Autosave toast */
+    .save-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #1e2130;
+      border: 1px solid #3d4268;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .save-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .save-toast.saving { color: #94a3b8; border-color: #3d4268; }
+    .save-toast.saved  { color: #4ade80; border-color: #166534; background: #0d1f12; }
+
+    .btn {
+      padding: 9px 22px;
+      border: none;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: #7c3aed; color: white; }
+    .btn-primary:hover { background: #6d28d9; }
+    .btn-danger {
+      background: transparent;
+      color: #f87171;
+      border: 1px solid #450a0a;
+    }
+    .btn-danger:hover { background: #1c0a0a; }
+
+
+    /* API key collapsible */
+    .api-section { padding: 0; overflow: hidden; }
+    .api-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .api-toggle:hover { color: #e2e8f0; }
+    .api-status { display: flex; align-items: center; gap: 8px; }
+    .api-configured { color: #4ade80; font-size: 11px; }
+    .api-chevron {
+      font-size: 18px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+      color: #475569;
+    }
+    .api-chevron.open { transform: rotate(90deg); }
+    .api-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease, padding 0.25s ease;
+      padding: 0 22px;
+    }
+    .api-body.open {
+      max-height: 200px;
+      padding: 0 22px 20px;
+    }
+
+    .section-subtitle {
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    .danger-zone { border-color: #3f1010; }
+    .danger-zone .section-title { color: #f87171; }
+    .danger-desc { color: #64748b; font-size: 12.5px; margin-bottom: 14px; line-height: 1.5; }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .cb-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #cbd5e1;
+      cursor: pointer;
+      text-transform: none;
+      font-weight: 400;
+      letter-spacing: 0;
+      padding: 2px 0;
+    }
+    .cb-option input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: #7c3aed;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 560px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .full { grid-column: 1; }
+      .date-range { grid-template-columns: 1fr 1fr; }
+      .date-sep { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>🔐 Profile Vault</h1>
+    <div class="sub">Manage your profile and API key</div>
+  </div>
+
+  <!-- Basic Info -->
+  <div class="section">
+    <div class="section-title">Basic Info</div>
+
+    <!-- Resume upload -->
+    <div style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #21262d">
+
+      <!-- Last uploaded file -->
+      <div class="stored-resume" id="stored-resume">
+        <span class="resume-icon" id="stored-resume-icon">📄</span>
+        <div class="resume-info">
+          <div class="resume-name" id="stored-resume-name"></div>
+          <div class="resume-meta" id="stored-resume-meta"></div>
+        </div>
+        <button class="open-resume-btn" id="open-resume-btn">Open ↗</button>
+      </div>
+
+      <div class="hint" style="margin-bottom:10px">Select your resume to auto-fill all fields below.</div>
+      <div class="upload-row">
+        <label class="upload-label">
+          <input type="file" id="options-resume-file" accept=".pdf,.txt,.docx">
+          📄 Select Resume
+        </label>
+        <span class="selected-file" id="options-file-name">No file chosen</span>
+        <button class="parse-resume-btn" id="options-parse-btn" disabled>Fill Profile</button>
+      </div>
+      <div id="parse-status"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field-group">
+        <label for="f-first-name">First Name</label>
+        <input type="text" id="f-first-name" placeholder="Jane">
+      </div>
+      <div class="field-group">
+        <label for="f-last-name">Last Name</label>
+        <input type="text" id="f-last-name" placeholder="Smith">
+      </div>
+      <div class="field-group">
+        <label for="f-preferred-name">Preferred Name <span style="color:#334155;font-weight:400;text-transform:none">(goes by)</span></label>
+        <input type="text" id="f-preferred-name" placeholder="Jay">
+      </div>
+      <div class="field-group">
+        <label for="f-pronouns">Pronouns</label>
+        <input type="text" id="f-pronouns" placeholder="he/him, she/her, they/them…">
+      </div>
+      <div class="field-group">
+        <label for="f-legal-first-name">Legal First Name</label>
+        <input type="text" id="f-legal-first-name" placeholder="Jane">
+      </div>
+      <div class="field-group">
+        <label for="f-legal-last-name">Legal Last Name</label>
+        <input type="text" id="f-legal-last-name" placeholder="Smith">
+      </div>
+      <div class="field-group">
+        <label for="f-email">Email</label>
+        <input type="email" id="f-email" placeholder="jane@example.com">
+      </div>
+      <div class="field-group">
+        <label for="f-phone">Phone</label>
+        <input type="tel" id="f-phone" placeholder="+1 (555) 000-0000">
+      </div>
+      <div class="field-group full">
+        <label for="f-address">Street Address</label>
+        <input type="text" id="f-address" placeholder="123 Main St, Apt 4B">
+      </div>
+      <div class="field-group">
+        <label for="f-city">City</label>
+        <input type="text" id="f-city" placeholder="San Francisco">
+      </div>
+      <div class="field-group">
+        <label for="f-state">State / Province</label>
+        <input type="text" id="f-state" placeholder="CA">
+      </div>
+      <div class="field-group">
+        <label for="f-zip">ZIP / Postal Code</label>
+        <input type="text" id="f-zip" placeholder="94105">
+      </div>
+      <div class="field-group">
+        <label for="f-country">Country</label>
+        <input type="text" id="f-country" placeholder="United States">
+      </div>
+      <div class="field-group">
+        <label for="f-linkedin">LinkedIn</label>
+        <input type="url" id="f-linkedin" placeholder="linkedin.com/in/janesmith">
+      </div>
+      <div class="field-group full">
+        <label for="f-summary">Professional Summary</label>
+        <textarea id="f-summary" placeholder="Experienced software engineer with…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills & Certifications -->
+  <div class="section">
+    <div class="section-title">Skills &amp; Certifications</div>
+
+    <div class="field-group" style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #21262d">
+      <label for="f-skills">Skills <span style="color:#334155;font-weight:400;text-transform:none">(comma-separated)</span></label>
+      <input type="text" id="f-skills" placeholder="JavaScript, Python, React, AWS, Project Management…">
+    </div>
+
+    <div class="section-subtitle">Certifications</div>
+    <div class="entries" id="certification-list"></div>
+    <button class="add-btn" id="add-certification">＋ Add Certification</button>
+  </div>
+
+  <!-- Education -->
+  <div class="section">
+    <div class="section-title">Education</div>
+    <div class="entries" id="education-list"></div>
+    <button class="add-btn" id="add-education">＋ Add Education</button>
+  </div>
+
+  <!-- Experience -->
+  <div class="section">
+    <div class="section-title">Work Experience</div>
+    <div class="entries" id="experience-list"></div>
+    <button class="add-btn" id="add-experience">＋ Add Experience</button>
+  </div>
+
+  <!-- Desired Pay -->
+  <div class="section">
+    <div class="section-title">Desired Pay</div>
+    <p style="color:#475569;font-size:12.5px;margin-bottom:18px;line-height:1.55">
+      Your compensation preferences for auto-filling salary expectation fields on applications.
+    </p>
+    <div class="grid-2">
+      <div class="field-group">
+        <label for="f-pay-type">Pay Type</label>
+        <select id="f-pay-type">
+          <option value="">— Select —</option>
+          <option value="Salary">Salary (annual)</option>
+          <option value="Hourly">Hourly</option>
+          <option value="Contract / Daily Rate">Contract / Daily Rate</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="f-pay-currency">Currency</label>
+        <select id="f-pay-currency">
+          <option value="USD">USD — US Dollar</option>
+          <option value="CAD">CAD — Canadian Dollar</option>
+          <option value="GBP">GBP — British Pound</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="AUD">AUD — Australian Dollar</option>
+          <option value="INR">INR — Indian Rupee</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="f-pay-min">Minimum <span style="color:#334155;font-weight:400;text-transform:none">(floor)</span></label>
+        <input type="number" id="f-pay-min" placeholder="80000" min="0">
+      </div>
+      <div class="field-group">
+        <label for="f-pay-target">Target <span style="color:#334155;font-weight:400;text-transform:none">(ideal)</span></label>
+        <input type="number" id="f-pay-target" placeholder="100000" min="0">
+      </div>
+      <div class="field-group">
+        <label for="f-pay-max">Maximum <span style="color:#334155;font-weight:400;text-transform:none">(ceiling)</span></label>
+        <input type="number" id="f-pay-max" placeholder="120000" min="0">
+      </div>
+      <div class="field-group">
+        <label for="f-pay-open-to">Open To</label>
+        <select id="f-pay-open-to">
+          <option value="">— Select —</option>
+          <option value="Open to negotiation">Open to negotiation</option>
+          <option value="Flexible based on benefits">Flexible based on total comp / benefits</option>
+          <option value="Firm">Firm — not negotiable</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- EEO & Compliance Preferences -->
+  <div class="section">
+    <div class="section-title">EEO &amp; Compliance Preferences</div>
+    <p style="color:#475569;font-size:12px;line-height:1.6;margin-bottom:20px">
+      Pre-select your answers for government-mandated equal employment opportunity and compliance questions.
+      These will be used when auto-filling application forms. All fields are optional.
+    </p>
+
+    <div class="section-subtitle" style="margin-bottom:14px">Work Eligibility</div>
+    <div class="grid-2" style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #21262d">
+      <div class="field-group">
+        <label for="eeo-work-auth">Authorized to Work in the US?</label>
+        <select id="eeo-work-auth">
+          <option value="">-- Not set --</option>
+          <option value="Yes">Yes, I am authorized</option>
+          <option value="No">No, I am not authorized</option>
+        </select>
+        <div class="hint">Are you legally authorized to work in the United States?</div>
+      </div>
+      <div class="field-group">
+        <label for="eeo-sponsorship">Require Visa Sponsorship?</label>
+        <select id="eeo-sponsorship">
+          <option value="">-- Not set --</option>
+          <option value="No">No, I will not require sponsorship</option>
+          <option value="Yes">Yes, I will require sponsorship</option>
+        </select>
+        <div class="hint">Will you now or in the future require employer sponsorship for a work visa?</div>
+      </div>
+    </div>
+
+    <div class="section-subtitle" style="margin-bottom:14px">Demographics <span style="color:#334155;text-transform:none;font-weight:400;letter-spacing:0">(voluntary, government-required EEO questions)</span></div>
+    <div class="grid-2">
+      <div class="field-group">
+        <label for="eeo-gender">Gender</label>
+        <select id="eeo-gender">
+          <option value="">-- Not set --</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Non-binary">Non-binary / Gender non-conforming</option>
+          <option value="Prefer not to disclose">Prefer not to disclose</option>
+          <option value="Decline to self-identify">Decline to self-identify</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="eeo-hispanic">Hispanic or Latino Origin</label>
+        <select id="eeo-hispanic">
+          <option value="">-- Not set --</option>
+          <option value="No">No, not Hispanic or Latino</option>
+          <option value="Yes">Yes, Hispanic or Latino</option>
+          <option value="Decline to self-identify">Decline to self-identify</option>
+        </select>
+        <div class="hint">Asked separately from race per EEOC guidelines.</div>
+      </div>
+      <div class="field-group full">
+        <label for="eeo-race">Race / Ethnicity</label>
+        <select id="eeo-race">
+          <option value="">-- Not set --</option>
+          <option value="American Indian or Alaska Native">American Indian or Alaska Native</option>
+          <option value="Asian">Asian</option>
+          <option value="Black or African American">Black or African American</option>
+          <option value="Native Hawaiian or Other Pacific Islander">Native Hawaiian or Other Pacific Islander</option>
+          <option value="White">White</option>
+          <option value="Two or more races">Two or more races</option>
+          <option value="Decline to self-identify">Decline to self-identify</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-subtitle" style="margin-top:20px;padding-top:18px;border-top:1px solid #21262d;margin-bottom:14px">Identity &amp; Community <span style="color:#334155;text-transform:none;font-weight:400;letter-spacing:0">(voluntary — used for diversity &amp; inclusion questions)</span></div>
+    <div class="grid-2">
+      <div class="field-group full">
+        <label for="eeo-sexual-orientation">Sexual Orientation</label>
+        <select id="eeo-sexual-orientation">
+          <option value="">-- Not set --</option>
+          <option value="Heterosexual / Straight">Heterosexual / Straight</option>
+          <option value="Gay">Gay</option>
+          <option value="Lesbian">Lesbian</option>
+          <option value="Bisexual">Bisexual</option>
+          <option value="Queer">Queer</option>
+          <option value="Other">Other</option>
+          <option value="Prefer not to answer">Prefer not to answer</option>
+        </select>
+      </div>
+      <div class="field-group full">
+        <label>Communities I Identify With <span style="color:#334155;font-weight:400;text-transform:none">(select all that apply)</span></label>
+        <div class="hint" style="margin-bottom:10px">Used for community / diversity checkbox questions on applications. Veteran and disability selections here also answer formal compliance questions.</div>
+        <div class="checkbox-grid" id="eeo-communities">
+          <label class="cb-option"><input type="checkbox" value="Person with disability"> Person with disability</label>
+          <label class="cb-option"><input type="checkbox" value="Neurodiverse"> Neurodiverse</label>
+          <label class="cb-option"><input type="checkbox" value="Veteran"> Veteran</label>
+          <label class="cb-option"><input type="checkbox" value="Parent"> Parent</label>
+          <label class="cb-option"><input type="checkbox" value="Refugee or immigrant"> Refugee or immigrant</label>
+          <label class="cb-option"><input type="checkbox" value="None of the above"> None of the above</label>
+          <label class="cb-option"><input type="checkbox" value="Prefer not to answer"> Prefer not to answer</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Key (collapsed by default) -->
+  <div class="section api-section">
+    <button class="api-toggle" id="api-toggle">
+      <span class="api-status" id="api-status">🔑 API Key</span>
+      <span class="api-chevron" id="api-chevron">›</span>
+    </button>
+    <div class="api-body" id="api-body">
+      <div class="field-group" style="margin-top:14px">
+        <label for="api-key">Anthropic API Key</label>
+        <div class="key-row">
+          <input type="password" id="api-key" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+          <button class="toggle-btn" id="toggle-key">Show</button>
+        </div>
+        <div class="hint">
+          Stored locally in your browser only — never shared.
+          Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="section danger-zone">
+    <div class="section-title">Danger Zone</div>
+    <p class="danger-desc">Permanently delete your stored profile and API key. This cannot be undone.</p>
+    <button class="btn btn-danger" id="clear-btn">Clear All Data</button>
+  </div>
+
+</div>
+
+<!-- Autosave toast -->
+<div class="save-toast" id="save-toast">
+  <span id="save-toast-text"></span>
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

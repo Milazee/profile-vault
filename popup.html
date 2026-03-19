@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Profile Vault</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      background: #0f1117;
+      color: #e2e8f0;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: #1a1d2e;
+      border-bottom: 1px solid #2d3148;
+    }
+
+    .header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #a78bfa;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .header h1::before { content: '🔐'; font-size: 14px; }
+
+    .options-btn {
+      color: #64748b;
+      text-decoration: none;
+      font-size: 17px;
+      line-height: 1;
+      padding: 2px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: color 0.15s;
+    }
+    .options-btn:hover { color: #a78bfa; }
+
+    .content { padding: 16px; }
+
+    /* Upload section */
+    #upload-section { display: flex; flex-direction: column; gap: 12px; }
+
+    .intro {
+      color: #94a3b8;
+      line-height: 1.5;
+      font-size: 12.5px;
+    }
+
+    .file-drop {
+      border: 2px dashed #2d3148;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .file-drop:hover, .file-drop.drag-over {
+      border-color: #7c3aed;
+      background: #1a1d2e;
+    }
+    .file-drop input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+    }
+    .file-drop .drop-icon { font-size: 24px; margin-bottom: 6px; }
+    .file-drop .drop-label { color: #94a3b8; font-size: 12px; }
+    .file-drop .drop-label span { color: #a78bfa; }
+    .file-drop .drop-types { color: #475569; font-size: 11px; margin-top: 4px; }
+
+    #file-selected {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #1a1d2e;
+      border-radius: 6px;
+      border: 1px solid #2d3148;
+    }
+    #file-selected .file-icon { font-size: 16px; }
+    #file-selected .file-name {
+      flex: 1;
+      color: #e2e8f0;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #file-selected .clear-file {
+      background: none;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0 2px;
+    }
+    #file-selected .clear-file:hover { color: #ef4444; }
+
+    .btn {
+      width: 100%;
+      padding: 9px 14px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: #7c3aed;
+      color: white;
+    }
+    .btn-primary:hover:not(:disabled) { background: #6d28d9; }
+    .btn-primary:disabled {
+      background: #2d3148;
+      color: #475569;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #1a1d2e;
+      color: #94a3b8;
+      border: 1px solid #2d3148;
+    }
+    .btn-secondary:hover { background: #242741; color: #e2e8f0; }
+
+    /* Profile section */
+    #profile-section { display: none; flex-direction: column; gap: 12px; }
+
+    .profile-card {
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .profile-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 2px;
+    }
+    .profile-title {
+      font-size: 12px;
+      color: #a78bfa;
+      margin-bottom: 8px;
+    }
+
+    .profile-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .profile-detail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: #94a3b8;
+    }
+    .profile-detail .icon { width: 14px; text-align: center; font-size: 11px; }
+    .profile-detail span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .skills-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .skill-tag {
+      background: #1e1b4b;
+      border: 1px solid #312e81;
+      color: #a5b4fc;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-size: 10.5px;
+    }
+    .more-skills {
+      color: #475569;
+      font-size: 10.5px;
+      padding: 2px 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Status */
+    #status {
+      margin: 0 16px 14px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    #status.info { background: #0f172a; color: #94a3b8; border: 1px solid #1e293b; display: flex; }
+    #status.success { background: #052e16; color: #4ade80; border: 1px solid #14532d; display: flex; }
+    #status.error { background: #1c0a0a; color: #f87171; border: 1px solid #450a0a; display: flex; }
+    #status.loading { background: #1a1d2e; color: #94a3b8; border: 1px solid #2d3148; display: flex; }
+
+    .spinner {
+      width: 12px; height: 12px;
+      border: 2px solid #2d3148;
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* API key warning */
+    .api-warning {
+      background: #1c1409;
+      border: 1px solid #451a03;
+      border-radius: 7px;
+      padding: 10px 12px;
+      color: #fb923c;
+      font-size: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .api-warning .warn-icon { font-size: 14px; flex-shrink: 0; }
+    .api-warning a { color: #fb923c; text-decoration: underline; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Profile Vault</h1>
+    <button class="options-btn" id="options-btn" title="Options">⚙</button>
+  </div>
+
+  <!-- API key warning -->
+  <div id="api-warning" class="content" style="display:none">
+    <div class="api-warning">
+      <span class="warn-icon">⚠️</span>
+      <span>No API key found. <a id="go-options">Open Options</a> to add your Anthropic API key.</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Upload section -->
+    <div id="upload-section">
+      <p class="intro">Upload your resume and Claude will extract your profile for auto-filling job applications.</p>
+
+      <label class="file-drop" id="file-drop">
+        <input type="file" id="resume-file" accept=".pdf,.txt,.docx">
+        <div class="drop-icon">📄</div>
+        <div class="drop-label"><span>Select a file</span> or drag it here</div>
+        <div class="drop-types">PDF, DOCX, or TXT</div>
+      </label>
+
+      <div id="file-selected">
+        <span class="file-icon">📎</span>
+        <span class="file-name" id="file-name-label"></span>
+        <button class="clear-file" id="clear-file">✕</button>
+      </div>
+
+      <button class="btn btn-primary" id="parse-btn" disabled>Fill Profile</button>
+    </div>
+
+    <!-- Profile section -->
+    <div id="profile-section">
+      <div class="profile-card" id="profile-card"></div>
+
+      <button class="btn btn-primary" id="fill-btn">⚡ Fill This Page</button>
+      <button class="btn btn-secondary" id="replace-btn" style="margin-top:7px">↻ Update Resume</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
