@@ -1,14 +1,17 @@
 # Profile Vault
 
-A Chrome extension that parses your resume with Claude AI and auto-fills job application forms.
+A Chrome extension that acts as a personal data vault for job seekers. Store all your professional information once, and let Profile Vault auto-fill job applications for you — no more typing the same details over and over.
 
-## Features
+## What It Does
 
-- Upload your resume (PDF, DOCX, or TXT)
-- Claude AI extracts your profile: name, contact info, work history, education, skills, and more
-- One-click form filling on any job application page
-- Supports text inputs, dropdowns, radio buttons, checkboxes, and comboboxes
-- Handles EEO/compliance fields, salary fields, and generates cover letter text
+Job applications ask for the same information repeatedly: your name, contact details, work history, education, skills, and more. Profile Vault solves this by:
+
+- **Parsing your resume** — upload once and Claude AI extracts all your information automatically
+- **Auto-filling forms** — one click fills in text fields, dropdowns, radio buttons, checkboxes, and more
+- **Attaching your resume** — automatically handles file upload fields on application forms
+- **Saving your responses** — stores answers you've written for common questions (e.g. "Why do you want to work here?")
+- **Generating responses** — uses Claude AI to draft answers for open-ended questions based on your profile
+- **Auto-saving** — all changes to your profile are saved automatically
 
 ## Requirements
 
@@ -27,34 +30,35 @@ This extension is not yet published to the Chrome Web Store. Install it in devel
 
 ## Setup
 
-1. Click the Profile Vault icon and then **Options** (or right-click the icon → Options)
+1. Click the Profile Vault icon → **Options** (or right-click the icon → Options)
 2. Paste your Anthropic API key and click **Save**
 
 ## Usage
 
-### Parsing your resume
+### 1. Build your vault
 
 1. Click the Profile Vault icon
 2. Drag and drop your resume or click to browse (PDF, DOCX, or TXT supported)
-3. Click **Parse Resume** — Claude will extract your profile in a few seconds
-4. Your profile is saved locally in Chrome storage
+3. Click **Parse Resume** — Claude extracts your name, contact info, work history, education, skills, and more
+4. Your profile is saved locally in Chrome — no account needed
 
-### Auto-filling a form
+### 2. Auto-fill a job application
 
-1. Navigate to a job application page
+1. Navigate to any job application page
 2. Click the Profile Vault icon
 3. Click **Fill This Page**
-4. Claude scans the form fields and fills in the matching values
+4. Claude scans the form and fills in every matching field using your vault data
 
-### Updating your profile
+### 3. Update your profile
 
-Click **Replace Resume** in the popup to upload a new resume and re-parse.
+Click **Replace Resume** to upload a new resume and re-parse, or edit fields directly in the options page — changes save automatically.
 
 ## Privacy
 
-- Your resume and profile data are stored locally in Chrome's storage — nothing is sent to any server other than the Anthropic API for parsing
+- All your data stays on your device in Chrome's local storage
+- The only external service used is the Anthropic API (for resume parsing and response generation)
 - Your API key is stored locally and sent only to `api.anthropic.com`
-- No analytics or tracking
+- No analytics, no tracking, no servers
 
 ## Project Structure
 
@@ -71,7 +75,7 @@ profile-vault/
 
 ## Development
 
-The extension uses Manifest V3. All Claude API calls are made from `background.js` (the service worker) using the `anthropic-dangerous-direct-browser-access` header, which allows browser-side API requests.
+Built with Manifest V3. All Claude API calls are made from `background.js` using the `anthropic-dangerous-direct-browser-access` header for browser-side API access.
 
 To make changes: edit the files, then go to `chrome://extensions` and click the refresh icon on the Profile Vault card.
 
